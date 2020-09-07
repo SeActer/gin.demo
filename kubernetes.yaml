@@ -1,0 +1,110 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: t1
+spec:
+  containers:
+  - name: app
+      image: busybox
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: t1-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: app
+  template:
+    metadata:
+      labels:
+        run: app
+    spec:
+      containers:
+      - name: app
+        image: busybox      
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: t1-service
+spec:
+  selector:
+    run: app
+  ports:
+  - port: 80
+    targetPort: 80
+  type: ClusterIP
+---
+
+kubectl cluster-info
+
+# kubectl run nginx-deployment --image=nginx --port=80 --replicas=3
+# kubectl get pods		可看到3个副本集
+
+动态监控pod资源的创建
+# kubectl get pods -w  
+
+查看pod资源分配在哪个node节点
+# kubectl get pods -o wide
+
+# kubectl get all       可以看到更详细的
+pod资源的创建伴随着控制器deployment和replicaset副本集的创建
+
+# kubectl delete deploy/nginx
+# kubectl delete deploy/nginx-deployment
+# kubectl get pods
+
+ 
+  
+创建nginx，指定镜像，指定端口，指定副本数量
+# kubectl run nginx --image=nginx:latest --port=80 --replicas=3
+动态监控pod资源的创建
+# kubectl get pods -w  
+
+没有指定命名空间，默认 是default
+# kubectl get pods
+# kubectl get pods,deployment,replicaset
+
+# kubectl expose deployment nginx --port=80 --target-port=80 --name=nginx-service --type=NodePort
+
+# kubectl get svc
+不管访问哪个nodepodIP，都可以访问到资源，是因为有kube-proxy负载均衡
+# kubectl get svc
+可看负载均衡端口46091
+
+查看网络状态详细信息
+# kubectl get pods -o wide
+
+查看关联后端的节点
+# kubectl get endpoints
+
+
+查看历史版本
+# kubectl rollout history deployment/nginx
+执行回滚
+# kubectl rollout undo deployment/nginx
+检查回滚状态
+# kubectl rollout status deployment/nginx
+
+
+删除pod资源
+# kubectl delete deployment/nginx
+# kubectl get pods -w  
+# kubectl get pods
+
+service对外提供的服务 也要删
+# kubectl get svc
+删除服务SVC
+# kubectl delete svc/nginx-service
+# kubectl get svc
+
+
+
+
+
+
+
+
+
